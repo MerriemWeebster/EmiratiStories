@@ -5,14 +5,17 @@ using UnityEngine;
 public class GazableObject : MonoBehaviour
 {
     public bool beingGazedAt = false;
+    [SerializeField] private float distractionThreshold, distractionMin;
     [SerializeField] private Color activatedColor;
-    [SerializeField] private TextMesh intense;
+    [SerializeField] private TextMesh intense, distraction;
     Rigidbody r; 
     
     Material material;
     bool activated = false;
 
     float seconds = Mathf.FloorToInt(5.0f);
+
+    float lastGaze = -100f;
 
     private void Awake()
     {
@@ -34,8 +37,14 @@ public class GazableObject : MonoBehaviour
         }
 
         CountDownTimer();
+        StopAllCoroutines();
         StartCoroutine(ColorChange(material.color, activatedColor, material, 1, delay));
         activated = true;
+
+        if(Time.time - lastGaze <= distractionThreshold && Time.time - lastGaze >= distractionMin) 
+        {
+            distraction.gameObject.SetActive(true);
+        }
     }
 
     void OnIntenseGaze() {
@@ -62,7 +71,6 @@ public class GazableObject : MonoBehaviour
         }
 
         else {
-
             OnIntenseGaze();
         }
        
@@ -78,9 +86,11 @@ public class GazableObject : MonoBehaviour
         StartCoroutine(ColorChange(material.color, Color.black, material, 1, 0));
         activated = false;
         intense.gameObject.SetActive(false);
+        distraction.gameObject.SetActive(false);
         //reset timer
         seconds = Mathf.FloorToInt(5.0f);
         //this.gameObject.GetComponent<SphereCollider>().material.bounciness = 0; 
+        lastGaze = Time.time;
     }
 
     // Change the color of the object
