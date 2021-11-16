@@ -8,10 +8,22 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
-        float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxisRaw("Vertical");
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        bool up = Input.GetKey(KeyCode.E);
+        bool down = Input.GetKey(KeyCode.Q);
 
         Vector3 movement = transform.right * x + transform.forward * z;
+
+        if(up)
+        {
+            movement.y = 0.5f;
+        }
+        else if(down)
+        {
+            movement.y = -0.5f;
+        }
 
         transform.position += movement * speed * Time.deltaTime;
     }

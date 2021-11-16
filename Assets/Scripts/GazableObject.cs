@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GazableObject : MonoBehaviour
 {
     public bool beingGazedAt = false;
     [SerializeField] private float distractionThreshold, distractionMin;
     [SerializeField] private Color activatedColor;
-    [SerializeField] private TextMesh intense, distraction;
+    [SerializeField] private TextMeshPro intense, distraction;
     Rigidbody r; 
     
     Material material;
