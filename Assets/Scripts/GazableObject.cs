@@ -5,11 +5,12 @@ using TMPro;
 
 public class GazableObject : MonoBehaviour
 {
-    public bool beingGazedAt = false;
+    public bool beingGazedAt = false, changeColor = true;
     [SerializeField] private float distractionThreshold, distractionMin;
     [SerializeField] private Color activatedColor;
     [SerializeField] private TextMeshPro intense, distraction;
-    Rigidbody r; 
+    private Animator anim = null;
+   // Rigidbody r; 
     
     Material material;
     bool activated = false;
@@ -20,11 +21,13 @@ public class GazableObject : MonoBehaviour
 
     private void Awake()
     {
-        material = transform.GetComponent<Renderer>().material;
+        if(changeColor) material = transform.GetComponent<Renderer>().material;
 
-        r = gameObject.GetComponent<Rigidbody>();
+        //r = gameObject.GetComponent<Rigidbody>();
 
         gameObject.layer = LayerMask.NameToLayer("GazableObjects");
+
+        anim = GetComponent<Animator>();
     }
 
     // Called when the camera is gazing on this object
@@ -39,11 +42,12 @@ public class GazableObject : MonoBehaviour
 
         CountDownTimer();
         StopAllCoroutines();
-        StartCoroutine(ColorChange(material.color, activatedColor, material, 1, delay));
+        if(changeColor) StartCoroutine(ColorChange(material.color, activatedColor, material, 1, delay));
         activated = true;
 
         if(Time.time - lastGaze <= distractionThreshold && Time.time - lastGaze >= distractionMin) 
         {
+            anim.SetBool("Distraction", true);
             distraction.gameObject.SetActive(true);
         }
     }
@@ -55,24 +59,24 @@ public class GazableObject : MonoBehaviour
         intense.gameObject.SetActive(true);
     }
 
-    void bounce() {
+    /*void bounce() {
 
         r.AddForce(0, 100.0f, 0);
     
     }
-
+*/
     void CountDownTimer()
     {
-    
         if (seconds > 0)
         {
-
             seconds--;
             Invoke("CountDownTimer", 1.0f);
+            if(anim != null) anim.SetBool("Gaze", true);
         }
 
         else {
             OnIntenseGaze();
+            if(anim != null) anim.SetBool("IntenseGaze", true);
         }
        
     }
@@ -84,7 +88,7 @@ public class GazableObject : MonoBehaviour
         if(!activated) { return; }
         CancelInvoke("CountDownTimer");
         StopAllCoroutines();
-        StartCoroutine(ColorChange(material.color, Color.black, material, 1, 0));
+        if(changeColor) StartCoroutine(ColorChange(material.color, Color.black, material, 1, 0));
         activated = false;
         intense.gameObject.SetActive(false);
         distraction.gameObject.SetActive(false);
@@ -92,6 +96,12 @@ public class GazableObject : MonoBehaviour
         seconds = Mathf.FloorToInt(5.0f);
         //this.gameObject.GetComponent<SphereCollider>().material.bounciness = 0; 
         lastGaze = Time.time;
+        if(anim != null) 
+        {
+            anim.SetBool("Gaze", false);
+            anim.SetBool("IntenseGaze", false);
+            anim.SetBool("Distraction", false);
+        }
     }
 
     // Change the color of the object
